@@ -68,14 +68,14 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_FEB08A7913F04B598BD6EBE8F97342A5 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_8F95603490D44E73B397074B99A9CEE4 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_8264408A9F494FD786CBFAE741532B5B }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_SCRIPTGEN_WEB_V1 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_SCRIPTGEN_WEB_V1 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_SCRIPTGEN_WEB_V1 }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'scriptgen-agent-v2'
+          app-name: 'scriptgen-web-v1'
           slot-name: 'Production'
           
