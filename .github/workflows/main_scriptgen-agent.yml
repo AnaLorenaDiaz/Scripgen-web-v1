@@ -78,4 +78,3 @@ jobs:
         with:
           app-name: 'scriptgen-web-v1'
           slot-name: 'Production'
-          
