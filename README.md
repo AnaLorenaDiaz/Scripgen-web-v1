@@ -4,6 +4,7 @@ Agente conversacional que genera scripts de PowerShell personalizados a partir d
 
 el bash se refiere a la ejecución en POWERSHELL (línea por línea)
 
+
 ---
 
 ## 📌 Características
