@@ -1,6 +1,6 @@
 from openai_utils import generar_script
 
-# Sesiones simples por usuario
+# Diccionario para manejar sesiones por usuario
 sesiones = {}
 
 def procesar_mensaje_usuario(mensaje, session_id="default"):
@@ -11,13 +11,10 @@ def procesar_mensaje_usuario(mensaje, session_id="default"):
         estado["fase"] = 2
         sesiones[session_id] = estado
         return (
-            "\U0001F4CE **Entendido**. Ahora necesito que me des la *RUTA COMPLETA DEL ARCHIVO EXCEL*, incluyendo el nombre del archivo.\n\n"
-            "\U0001F4CC *Ejemplo:*\n"
-            "```
-C:\\Usuarios\\Documentos\\Lista_clientes.xlsx
-```
-\n"
-            "\u26A0\ufe0f Aseg\u00farate de escribirla correctamente para que el script funcione. \U0001F609"
+            "📎 **Entendido**. Ahora necesito que me des la *RUTA COMPLETA DEL ARCHIVO EXCEL*, incluyendo el nombre del archivo.\n\n"
+            "📌 *Ejemplo:*\n"
+            "```\nC:\\Usuarios\\Documentos\\Lista_clientes.xlsx\n```\n\n"
+            "⚠️ Asegúrate de escribirla correctamente para que el script funcione. 😉"
         )
 
     elif estado["fase"] == 2:
@@ -25,8 +22,8 @@ C:\\Usuarios\\Documentos\\Lista_clientes.xlsx
         estado["fase"] = 3
         sesiones[session_id] = estado
         return (
-            "\U0001F4C4 Perfecto. ¿Cuál es el *NOMBRE de la HOJA* de Excel?\n\n"
-            "\U0001F4CC *Ejemplo:* `Hoja1`"
+            "📄 Perfecto. ¿Cuál es el *NOMBRE de la HOJA* de Excel?\n\n"
+            "📌 *Ejemplo:* `Hoja1`"
         )
 
     elif estado["fase"] == 3:
@@ -34,8 +31,8 @@ C:\\Usuarios\\Documentos\\Lista_clientes.xlsx
         estado["fase"] = 4
         sesiones[session_id] = estado
         return (
-            "\U0001F4CA Genial. ¿Cuáles son las **columnas clave** a utilizar?\n\n"
-            "\U0001F4CC *Ejemplo:* `Nombre`, `Email`"
+            "📊 Genial. ¿Cuáles son las **columnas clave** a utilizar?\n\n"
+            "📌 *Ejemplo:* `Nombre`, `Email`"
         )
 
     elif estado["fase"] == 4:
@@ -43,20 +40,19 @@ C:\\Usuarios\\Documentos\\Lista_clientes.xlsx
         estado["fase"] = 5
         sesiones[session_id] = estado
         return (
-            "🧐 Última pregunta: ¿Qué *acción* deseas realizar?\n\n"
-            "\U0001F4CC *Ejemplo:* `Eliminar duplicados`, `Filtrar por estado`, etc."
+            "🧠 Última pregunta: ¿Qué *acción* deseas realizar?\n\n"
+            "📌 *Ejemplo:* `Eliminar duplicados`, `Filtrar por estado`, etc."
         )
 
     elif estado["fase"] == 5:
         estado["accion"] = mensaje
-        sesiones[session_id] = estado
 
         prompt = (
             f"Eres un experto en PowerShell.\n\n"
             f"El usuario desea automatizar una tarea con un archivo Excel.\n\n"
-            f"\U0001F4C4 Ruta del archivo: {estado['ruta_archivo']}\n"
-            f"\U0001F4C4 Hoja: {estado['nombre_hoja']}\n"
-            f"\U0001F4C4 Columnas: {estado['columnas']}\n"
+            f"📄 Ruta del archivo: {estado['ruta_archivo']}\n"
+            f"📄 Hoja: {estado['nombre_hoja']}\n"
+            f"📄 Columnas: {estado['columnas']}\n"
             f"🎯 Acción a realizar: {estado['accion']}\n\n"
             f"Genera un script PowerShell bien comentado que cumpla con esta solicitud. "
             f"Incluye validación de existencia del archivo y explicaciones claras en comentarios."
@@ -64,8 +60,12 @@ C:\\Usuarios\\Documentos\\Lista_clientes.xlsx
 
         try:
             respuesta_completa = generar_script(prompt)
-            partes = respuesta_completa.split("```powershell")
-            script = partes[1].split("```", 1)[0].strip() if len(partes) > 1 else respuesta_completa
+
+            if "```powershell" in respuesta_completa:
+                script = respuesta_completa.split("```powershell")[1].split("```")[0].strip()
+            else:
+                script = respuesta_completa.strip()
+
             explicacion = respuesta_completa.replace(script, "").replace("```powershell", "").replace("```", "").strip()
 
             sesiones[session_id] = {
@@ -73,17 +73,17 @@ C:\\Usuarios\\Documentos\\Lista_clientes.xlsx
                 "explicacion": explicacion
             }
 
-            return f"\u2705 \u00a1Script generado con éxito!\n\n```powershell\n{script}\n```"
+            return f"✅ ¡Script generado con éxito!\n\n```powershell\n{script}\n```"
 
         except Exception as e:
             sesiones[session_id] = {"fase": 1}
-            return f"\u274c Ocurrió un error al generar el script: {str(e)}"
+            return f"❌ Ocurrió un error al generar el script: {str(e)}"
 
     elif estado["fase"] == 6:
-        explicacion = estado.get("explicacion", "")
+        explicacion = estado.get("explicacion", "No hay explicación disponible.")
         sesiones[session_id] = {"fase": 1}
-        return f"\U0001F4D8 Aquí tienes la explicación del script:\n\n{explicacion}"
+        return f"📘 Aquí tienes la explicación del script:\n\n{explicacion}"
 
     else:
         sesiones[session_id] = {"fase": 1}
-        return "\U0001F501 Algo salió mal. Reiniciando conversación. ¿Qué deseas automatizar con PowerShell?"
+        return "🔄 Algo salió mal. Reiniciando conversación. ¿Qué deseas automatizar con PowerShell?"
